@@ -1,0 +1,32 @@
+\section{Ostatnie problemy}\label{sec:final_introduction}
+
+Po upewnieniu się, że kompresja stosowana w formacie jpg jest bezkonkurencyjna,
+oraz zbadaniu, jak w odpowiedni sposób możemy pobierać lokalizację stacji kosmicznej,
+musieliśmy zmierzyć się z ostatnim problemem. Chcielismy dane o czasie wykonania
+zdjęcia i położeniu stacji zapisywać w nazwie zdjęcia, jednak ESA poinformowało
+nas, że nazwy plików mogą zostać zmienione w trakcie pobierania przez nich danych.
+Musieliśmy wymyślić sposób, by móc jednoznacznie przyporządkować zdjęcie do daty
+i lokalizacji.
+
+Wymyśliliśmy trzy sposoby rozwiązania tego problemu:
+\begin{itemize}
+    \item zapisanie danych w metadanych zdjęcia - odrzuciliśmy to rozwiązanie, ponieważ
+    ESA zmieniając nazwę pliku, mogła zmieniać również metadane - rozwiązanie było niepewne
+    \item zapisanie danych na zdjęciu - odrzucone, ponieważ po pierwsze mogliśmy zastąpić
+    potencjalnie ważny fragment zdjęcia, a po drugie odzyskanie tych danych mogłoby być
+    trudne algorytmicznie
+    \item haszowanie zdjęcia i zapis do pliku csv wartości hash, daty i lokalizacji -
+    zdecydowaliśmy się na to rozwiązanie
+\end{itemize}
+
+\section{I ich rozwiązania}\label{sec:final_conclusion}
+
+Musieliśmy także rozważyć, jak często wykonywać zdjęcia, by zająć jak najmniej miejsca na
+karcie pamięci, a jednocześnie nawet po odrzuceniu niewyraźnych zdjęć mieć sfotografowany
+cały możliwy obszar. Obliczyliśmy, że jeden piksel zdjęcia odpowiada 161 metrom na Ziemi,
+a ISS porusza się z prędkością odpowiadającą przesunięciu o połowę widocznego na zdjęciu
+obszaru w ciągu pół minuty. Ostatecznie zdecydowaliśmy się na wykonywanie zdjęć co 15 sekund.
+
+Obecnie, po wielu próbach i błędach czekamy na wyniki działania naszego kodu na Międzynarodowej
+Stacji Kosmicznej i przygotowujemy algorytmy uczenia maszynowego, które wykorzystamy do analizy
+zebranych zdjęć.

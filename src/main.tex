@@ -1,0 +1,70 @@
+% Preamble
+\documentclass[12pt, a4paper]{report}
+
+% Packages
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage[margin=1in, footskip=0.25in]{geometry}
+\usepackage{threeparttable}
+\usepackage{float}
+\usepackage{makecell}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\title{Systemy Wbudowane - AstroPi Challenge}
+\author{Marcin Przewięźlikowski, Maciej Trzebiński}
+
+% Document
+\begin{document}
+    \maketitle
+
+    \tableofcontents{}
+
+    \chapter{Wstęp}\label{ch:introduction}
+
+    W ramach zajęć z przedmiotu Systemy Wbudowane wystartowaliśmy w konkursie Astro Pi
+    Challenge. Konkurs ten jest organizowany przez Europejską Agencję Kosmiczną (ESA) i ma na celu
+    promowanie wśród uczniów i studentów zainteresowania eksperymentami naukowymi. ESA udostępnia
+    uczestnikom konkursu dwa mikrokomputery RaspberryPi znajdujące się na pokładzie Międzynarodowej
+    Stacji Kosmicznej (ISS) do celów eksperymentu. Właściwa część eksperymentu ma skupiać się na
+    monitorowaniu Ziemi lub kosmosu za pomocą czujników, w które wyposażony jest mikrokomputer przez
+    czas nie przekraczający trzech godzin.
+
+    Eksperyment dzieli się na cztery fazy:
+    \begin{itemize}
+        \item[faza 1:] w fazie pierwszej każdy zespół planuje swój eksperyment, a komisja złożona z pracowników
+        ESA ocenia go i wybiera najlepsze propozycje
+        \item[faza 2:] zespoły, których eksperymenty zostały zaklasyfikowane do fazy 2 piszą kod eksperymentu
+        i wysyłają go komisji, która ocenia, czy kod spełnia wymagania formalne
+        \item[faza 3:] kody pozytywnie zaopiniowane przez komisję są uruchamiane na mikrokomputerach na pokładzie
+        ISS
+        \item[faza 4:] wyniki eskperymentów dostarczane są do zespołów, które mają miesiąc czasu na ich analizę i
+        dostarczenie wniosków z analizy wyników
+    \end{itemize}
+
+    Nasz zespół podjął się zadania zbadania ilości światła emitowanego z powierzchni Ziemi w nocy.
+    Pozwoli to określić poziom zanieczyszczenia światłem w poszczególnych rejonach, oraz zużycie energii
+    elektrycznej na sztuczne oświetlenie w krajach, w których takie dane nie są zbierane lub udostępniane,
+    na podstawie takich danych udostępnionych przez innne kraje oraz zdjęć kuli ziemskiej wykonanych z pokładu ISS.
+
+    \chapter{Skonfigurowanie platformy treningowej}\label{ch:cover}
+    \input{cover}
+
+    \chapter{Porównanie wydajności Raspberry Pi 3, Raspberry Pi 1 oraz komputera klasy PC}\label{ch:performance}
+    \input{performance}
+
+    \chapter{Kompresja zdjęć}\label{ch:compression}
+    \input{svd}
+
+    \chapter{Geolokalizacja}\label{ch:geolocalisation}
+    \input{geolocalisation}
+
+    \chapter{Ostateczna wersja programu}\label{ch:final}
+    \input{final}
+
+\end{document}

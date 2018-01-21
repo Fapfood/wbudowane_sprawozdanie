@@ -1,0 +1,225 @@
+\section{Opis problemu}\label{sec:performance_introduction}
+
+Naszym pierwszym zamierzeniem było dokonywanie na pokładzie stacji zarówno pomiarów
+(wykonania zdjęć), jak również ich analizy (przy pomocy algorytmów uczenia maszynowego). Jednak już po
+rozpoczęciu przygotowywania programu dowiedzieliśmy się o przeciwskazaniach do takiego
+podejścia do problemu.
+
+Zostaliśmy poinformowani, że na pokładzie ISS nie znajduje RaspberryPi 3
+Model B, jak początkowo sądziliśmy, a znacznie wolniejszy Raspberry Pi 1 Model B+. W związku
+z takim obrotem spraw postanowiliśmy dokonać pomiarów prędkości tych dwóch modeli, jak
+również komputera stacjonarnego PC, w celu sprawdzenia, czy analiza zdjęć na pokładzie będzie
+wydajnościowo możliwa.
+
+ESA udostępniła zbiór zdjęć wykonanych przez Raspberry w poprzedniej edycji eksperymentu, jednak
+wśród nich nie znajdowały się zdjęcia wykonane po ciemnej stronie globu. Było to kolejne przeciwskazanie
+do pierwotnego pomysłu, ponieważ musielibysmy spreparować dane testowe wykorzystując zdjecia znalezione
+w internecie i wykonane przez inne urządzenia.
+
+Nie mieliśmy wpływu na drugi problem, ale mogliśmy sprawdzić jak poważnym przeciwskazaniem jest pierwszy.
+Postanowiliśmy zbadać wydajność modelu RaspberryPi 1 B+ i porównać ją z wydajnością modelu Raspberry 3 B oraz
+komputerem stacjonarnym. Jako algorytm testowy postanowiliśmy wykorzystać metodę regresji logistycznej
+wytrenowaną na zbiorze danych MNIST, ponieważ dane te są dostępne za darmo, a danych właściwe dla naszego
+eksperymentu wykonamy dopiero w kolejnej jego fazie. Poniżej przedstawiamy wyniki czasowe ogólne jednego
+przebiegu programu, oraz rozbite na zrobienie zdjęcia oraz jego analizę.
+
+Próbą testową, którą kamera rejestrowała był zawsze obraz cyfry 8. Niestety prosty model liniowy jakim jest
+regresja logistyczna w obrazie cyfry 8 rozpoznawał wszystkie możliwe cyfry. W naszym przypadku nie był to
+jednak problem, ponieważ nie liczyła się dla nas poprawność rozpoznania, a jedynie czas przeprowadzenia analizy.
+
+\section{Wyniki}\label{sec:performance_results}
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Komputer klasy PC}
+        \begin{tabular}{|l|l|ccc|}
+            \toprule
+            \thead{Rozpoznana \\ cyfra} & & \thead{Zrobienie \\ zdjęcia} &
+            \thead{Analiza \\ zdjęcia} & \thead{Pojedyńczy \\ przebieg} \\
+            \midrule
+            1 & Najkrótszy czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Średni czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Najdłuższy czas[s] & 0.001 & 0.016 & 0.020 \\
+            \midrule
+            7 & Najkrótszy czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Średni czas[s] & 0.000 & 0.007 & 0.011 \\
+            & Najdłuższy czas[s] & 0.001 & 0.012 & 0.016 \\
+            \midrule
+            8 & Najkrótszy czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Średni czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Najdłuższy czas[s] & 0.001 & 0.007 & 0.012 \\
+            \midrule
+            6 & Najkrótszy czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Średni czas[s] & 0.000 & 0.006 & 0.010 \\
+            & Najdłuższy czas[s] & 0.001 & 0.007 & 0.011 \\
+            \bottomrule
+        \end{tabular}
+        \begin{tablenotes}
+            \item Procesor IntelCore i7-4790 3.60 Ghz
+            \item RAM 16 GB
+        \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Raspberry Pi 1 Model B+}
+        \begin{tabular}{|l|l|ccc|}
+            \toprule
+            \thead{Rozpoznana \\ cyfra} & & \thead{Zrobienie \\ zdjęcia} &
+            \thead{Analiza \\ zdjęcia} & \thead{Pojedyńczy \\ przebieg} \\
+            \midrule
+            0 & Najkrótszy czas[s] & 0.106 & 0.739 & 0.933 \\
+            & Średni czas[s] & 1.038 & 0.746 & 1.875 \\
+            & Najdłuższy czas[s] & 2.385 & 0.760 & 2.097 \\
+            \midrule
+            2 & Najkrótszy czas[s] & 0.105 & 0.741 & 0.920 \\
+            & Średni czas[s] & 0.881 & 0.765 & 1.769 \\
+            & Najdłuższy czas[s] & 4.503 & 0.849 & 5.334 \\
+            \midrule
+            4 & Najkrótszy czas[s] & 0.104 & 0.737 & 0.936 \\
+            & Średni czas[s] & 0.563 & 0.746 & 1.454 \\
+            & Najdłuższy czas[s] & 1.557 & 0.759 & 2.373 \\
+            \midrule
+            7 & Najkrótszy czas[s] & 0.102 & 0.740 & 0.920 \\
+            & Średni czas[s] & 0.554 & 0.751 & 1.421 \\
+            & Najdłuższy czas[s] & 2.313 & 0.763 & 3.135 \\
+            \midrule
+            8 & Najkrótszy czas[s] & 0.174 & 0.743 & 0.958 \\
+            & Średni czas[s] & 0.505 & 0.754 & 1.562 \\
+            & Najdłuższy czas[s] & 2.720 & 0.763 & 3.538 \\
+            \bottomrule
+        \end{tabular}
+        \begin{tablenotes}
+            \item Procesor Broadcom CoS BCM2835 700 Mhz
+            \item RAM: 512 MB
+        \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Raspberry Pi 3 Model B}
+        \begin{tabular}{|l|l|ccc|}
+            \toprule
+            \thead{Rozpoznana \\ cyfra} & & \thead{Zrobienie \\ zdjęcia} &
+            \thead{Analiza \\ zdjęcia} & \thead{Pojedyńczy \\ przebieg} \\
+            \midrule
+            0 & Najkrótszy czas[s] & 0.014 & 0.073 & 0.106 \\
+            & Średni czas[s] & 0.014 & 0.133 & 0.177 \\
+            & Najdłuższy czas[s] & 0.015 & 0.144 & 0.191 \\
+            \midrule
+            9 & Najkrótszy czas[s] & 0.007 & 0.080 & 0.104 \\
+            & Średni czas[s] & 0.014 & 0.132 & 0.177 \\
+            & Najdłuższy czas[s] & 0.015 & 0.135 & 0.180 \\
+            \midrule
+            1 & Najkrótszy czas[s] & 0.007 & 0.072 & 0.097 \\
+            & Średni czas[s] & 0.014 & 0.132 & 0.177 \\
+            & Najdłuższy czas[s] & 0.025 & 0.186 & 0.230 \\
+            \midrule
+            3 & Najkrótszy czas[s] & 0.014 & 0.124 & 0.168 \\
+            & Średni czas[s] & 0.014 & 0.132 & 0.177 \\
+            & Najdłuższy czas[s] & 0.014 & 0.135 & 0.179 \\
+            \midrule
+            7 & Najkrótszy czas[s] & 0.014 & 0.080 & 0.125 \\
+            & Średni czas[s] & 0.014 & 0.134 & 0.179 \\
+            & Najdłuższy czas[s] & 0.025 & 0.148 & 0.217 \\
+            \midrule
+            4 & Najkrótszy czas[s] & 0.014 & 0.131 & 0.176 \\
+            & Średni czas[s] & 0.014 & 0.132 & 0.176 \\
+            & Najdłuższy czas[s] & 0.014 & 0.132 & 0.176 \\
+            \midrule
+            5 & Najkrótszy czas[s] & 0.015 & 0.069 & 0.104 \\
+            & Średni czas[s] & 0.015 & 0.138 & 0.183 \\
+            & Najdłuższy czas[s] & 0.023 & 0.141 & 0.195 \\
+            \midrule
+            6 & Najkrótszy czas[s] & 0.007 & 0.068 & 0.092 \\
+            & Średni czas[s] & 0.012 & 0.216 & 0.251 \\
+            & Najdłuższy czas[s] & 0.034 & 0.335 & 0.426 \\
+            \midrule
+            8 & Najkrótszy czas[s] & 0.007 & 0.072 & 0.097 \\
+            & Średni czas[s] & 0.014 & 0.139 & 0.192 \\
+            & Najdłuższy czas[s] & 0.015 & 0.146 & 0.194 \\
+            \midrule
+            2 & Najkrótszy czas[s] & 0.007 & 0.072 & 0.097 \\
+            & Średni czas[s] & 0.016 & 0.163 & 0.227 \\
+            & Najdłuższy czas[s] & 0.028 & 0.267 & 0.356 \\
+            \bottomrule
+        \end{tabular}
+        \begin{tablenotes}
+            \item CPU: 4x ARM Cortex-A53, 1.2GHz (Quad Core 1.2GHz Broadcom BCM2837 64bit CPU)
+            \item RAM: 1GB LPDDR2 (900 MHz)
+            \item Rozbieżności w przypadku 6 i 2 były bardzo duże, najpierw seria bardzo szybkich rozpoznań,
+            później seria bardzo powolnych.
+        \end{tablenotes}
+    \end{threeparttable}
+\end{table}
+
+\section{Opracowanie wyników}\label{sec:performance_results_preparation}
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Uśredniony czas wszystkich prób}
+        \begin{tabular}{|lccc|}
+            \toprule
+            & Zrobienie zdjęcia & Analiza zdjęcia & Pojedyńczy przebieg \\
+            \midrule
+            RaspberryPi 1 & 0.708 & 0.752 & 1.616 \\
+            RaspberryPi 3 & 0.014 & 0.132 & 0.176 \\
+            PC & 0.000 & 0.006 & 0.010 \\
+            \bottomrule
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{threeparttable}
+        \caption{Ilorazy poszczególnych wyników}
+        \begin{tabular}{|lccc|}
+            \toprule
+            & Zrobienie zdjęcia & Analiza zdjęcia & Pojedyńczy przebieg \\
+            \midrule
+            Iloraz Pi1/Pi3 & 50,5x & 5,5x & 9x \\
+            Iloraz Pi3/PC & 14x & 22x & 17,5x \\
+            Iloraz Pi1/PC & 708x & 125x & 161,5x \\
+            \bottomrule
+        \end{tabular}
+    \end{threeparttable}
+\end{table}
+
+\large Dodatkowe zastrzeżenia odnośnie Raspberry Pi 1: \normalsize
+\begin{itemize}
+    \item bardzo wolne łącze ethernetowe
+    \footnotesize (poczta Gmail otwierała się ok 2 min, dla porównania przy dokładnie
+    tej samej konfiguracji pozostałego sprzętu, jak również dokładnie tym samym egzemplarzem systemu, na
+    Raspberry Pi 3 trwało to 0,5s) \normalsize \\
+    \item niewydolność pozostałych interfejsów wejścia/wyjścia
+    \footnotesize (w trakcie robienia zdjęcia kamerką, obraz
+    na ekranie podpiętym pod HDMI stawał się czarny i wracał dopiero gdy zdjęcie zostało zapisane przez
+    program) \normalsize \\
+\end{itemize}
+
+\section{Wnioski}\label{sec:performance_conclusion}
+
+Najprawdopodobniej wykonanie zdjęcia na Raspberry Pi 1 było tak mało wydajne z powodu
+niewydolności interfejsów, co tłumaczy 50x wolniejsze działanie w porównaniu z Raspberry Pi 3.
+
+Analiza zdjęcia na wszystkich 3 obiektach testowych była najbardziej stała czasowo, a jako
+że to był główny cel naszego eksperymentu, to te wyniki są dla nas najważniejsze. Raspberry Pi 1
+jest średnio 5,5x wolniejsze na samej analizie zdjęcia, które w tym przypadku było wykonywane
+metodą prostej regresji. W przypadku bardziej skomplikowanych modeli machine learningu
+rozbieżności czasowe będą dużo bardziej widoczne, dlatego musimy zrezygnować z analizy zdjęć
+na stacji kosmicznej przez niewydolność sprzętu.
+
+Analizy zdjęć dokonamy na komputerze PC, już po wykonaniu części eksperymentu mającej
+miejsce na pokładzie ISS.
+
+Zmiana założeń eksperymentu niosła za sobą, poza rozwiązaniem problemu z wydajnością, także negatywne
+konsekwencje. Miejsce na karcie pamięci mikrokomputera na stacji ISS które może zająć każdy zespół jest
+ograniczone, dlatego też w kolejnej części eksperymentu próbowaliśmy znaleźć sposób na redukcję rozmiaru
+wykonanych zdjęć.
