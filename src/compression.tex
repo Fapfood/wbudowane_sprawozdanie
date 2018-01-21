@@ -1,0 +1,254 @@
+\section{Zarys problemu}
+
+Po przeanalizowaniu wydajności Raspberry Pi, postanowiliśmy zredukować zakres odpowiedzialności płytki, aby będąc w kosmosie robiła zdjęcia powierzchni Ziemi i zapisywała je na karcie pamięci.
+Zdjęcia mają następnie trafić do nas, w celu dalszej analizy.
+Zależy nam na dużej ilości danych, ale ponieważ zasady konkursu (oraz, rzecz jasna, pojemność karty pamięci płytki Raspberry Pi) narzucają na nas ograniczenia względem zurzytej przestrzeni dyskowej,
+chcemy przechowywać zdjęcia o jak najmniejszym rozmiarze.
+
+Najpowszechniej używane dziś formaty zapisu plików z obrazami to .jpg oraz .png. Format .png zapewnia bezstratną kompresję obrazu. Format .jpg kompresuje stratnie, choć straty te nie są doskonale widoczne gołym okiem i sprawiają problem przede wszystkim gdy zależy nam na zachowaniu bardzo wysokiej rozdzielczości zdjęcia. W zamian .jpg oferuje znacznie mniejszy niż .png rozmiar pliku.
+
+Ponieważ zamierzamy analizować zdjęcia Ziemi nocą, stać nas na założenie, że zdjęcia te będą miały duży kontrast - ciemne i jasne połacie terenu. Stąd też akceptowalnym sposobem kompresji zdjęcia jest redukcja jego kolorów.
+
+W niniejszym sprawozdaniu prezentujemy nasze wyniki badania wpływu redukcji kolorów obrazu różnymi sposobami na jego rozmiar.
+
+\section{Algorytm k-means}
+
+Algorytm k-means jest dzieli dane punkty na $k$ klastrów punktów najbardziej podobnych, co w przypadku obrazów jest równoważne
+znalezieniu $k$ kolorów najbardziej reprezentatywnych dla obrazu.
+
+O samym algorytmie przeczytać można więcej na poniższej stronie internetowej: \url{https://www.datascience.com/blog/k-means-clustering}
+
+\subsection{Zastosowanie algorytmu w kompresji obrazów}
+K-means można zaaplikować do obrazów następująco:
+
+\begin{enumerate}
+\item Za pomocą algorytmu znaleźć $k$ kolorów najbardziej "reprezentatywnych" dla obrazu
+\item Każdy piksel w obrazie zmapować na kolor reprezentatywny najbliższy do koloru tegoż piksela
+\item Obraz z ograniczoną do $k$ liczbą kolorów potrzebuje mniej bitów, by dany kolor zakodować, dzięki czemu może zajmować mniej pamięci.
+\end{enumerate}
+
+\section{Faktyczna redukcja rozmiaru pliku poprzez redukcję długości kodowania kolorów}
+
+Oczywiście samo zmniejszenie liczby kolorów obrazu nie wystarczy, aby miał on mniejszy rozmiar - trzeba jeszcze zmodyfikować głębię koloru obrazu, by plik go zawierający korzystał z informacji o tym górnym ograniczeniu i mógł sobie pozwolić na kodowanie kolorów mniejszą liczbą bitów.
+W systemie operacyjnym Linux (a w szczególności systemie Raspbian) istnieją narzędzia \textbf{pngtopnm}, \textbf{pnmquant} oraz \textbf{pnmtopng}, których kombinacja pozwala na osiągnięcie tego celu.
+
+W szczególności efekt ten daje następujące wywołanie w terminalu:
+
+\begin{lstlisting}
+> pngtopnm input.png | pnmquant $NUM_COLORS | pnmtopng output.png
+\end{lstlisting}
+
+Dla zdjęcia posiadającego większą liczbę kolorów niż podana, narzędzie to znajduje sobie znanym sposobem odpowiednią liczbę reprezentatywnych kolorów. Nie dzieje się tak, gdy narzędzie stwierdzi, że obraz ma już odpowiednio niską liczbę kolorów. Zatem uprzednia redukcja kolorów nie jest konieczna.
+
+\section{Pomiary}
+
+Pomiary faktycznego wpływu redukcji kolorów na rozmiar pliku wykonano na 300 zdjęciach kotów zawartych w zbiorze: \url{https://www.kaggle.com/c/dogs-vs-cats/data}
+
+Zapisano i zmierzono rozmiary wszystkich tych zdjęć po różnych przekształceniach:
+
+\begin{itemize}
+\item oryginalne zdjęcie w formacie .jpg
+\item oryginalne zdjęcie w formacie .png
+\item dla liczby kolorów do których chcemy zredukować $K \in [1, 2, 4, 8, 16, 32]$
+	\begin{itemize}
+      \item zdjęcie z kolorami zredukowanymi do $K$  i odpowiednio zredukowaną głębią kolorów w formacie .png przez ww. narzędzia systemowe
+      \item dla liczby iteracji algorytmu k-means $I \in [1, 2, 4, 8, 16, 32]$ zdjęcie z kolorami zredukowanymi do $K$ przez k-means w $I$ iteracjach
+      \begin{itemize}
+        \item zapisane w formacie .jpg
+        \item zapisane w formacie .png
+        \item zapisane w formacie .png z głębią kolorów zredukowaną przez ww. narzędzia systemowe
+      \end{itemize}
+	\end{itemize}
+\end{itemize}
+
+Warto dodać, że narzędzie systemowe nie pozwala operować na plikach .jpg.
+
+\subsection{Wyniki pomiarów}
+
+W poniższej tabeli zobaczyć można zagregowane średnie rozmiary (w bajtach) zdjęć poddanych różnym przeróbkom.
+
+Oznaczenia:
+\begin{itemize}
+	\item $num\_centroids$ - liczba kolorów, do których zredukowano obraz. Jeżeli $num\_centroids = 0$, obraz w tym wypadku nie miał redukowanych kolorów przez k-means.
+    \item $num\_iterations$ - liczba iteracji algorytmu k-means. Jeżeli $num\_centroids \neq 0$ oraz $num\_iterations = 0$ oznacza to obraz przepuszczony przez narzędzie do redukcji głębi bez uprzedniej redukcji kolorów algorytmem k-means.
+    \item $new\_format$ - format zapisu obrazu. $jpg$ i $png$ oznaczają zapis obrazu w tych formatach bez przepuszczania go przez narzędzie redukujące głębię kolorów pliku. $red.png$ oznacza plik .png przepuszczony przez to narzędzie.
+\end{itemize}
+
+\begin{figure}[H]
+	\input{tables/aggr_tab}
+\end{figure}
+
+\subsection{Porównanie sposobów kompresji}
+
+\subsubsection{Porównanie formatów .jpg z redukcją kolorów algorytmem k-means i z zachowaniem oryginalnych kolorów}
+\label{m:jpg_vs_jpg}
+Poniższa tabela prezentuje średni stosunek wielkości plików .jpg (z redukcją kolorów algorytmem k-means) do oryginalnego zdjęcia jako .jpg:
+\begin{figure}[H]
+	\input{tables/jpg_vs_jpg}
+\end{figure}
+
+Wnioski: \ref{f:jpg_vs_jpg}
+
+\subsubsection{Porównanie formatów .jpg i .png}
+\label{m:png_vs_jpg}
+
+Poniższa tabela prezentuje średni stosunek wielkości plików .png (bez redukcji głębi kolorów narzędziami systemowymi) do odpowiadających im przekształceniami plików .jpg:
+\begin{figure}[H]
+	\input{tables/png_vs_jpg}
+\end{figure}
+
+Wnioski: \ref{f:png_vs_jpg}
+
+
+\subsubsection{Porównanie formatu .png z redukcją głębi i bez}
+
+\label{m:red_vs_png}
+Poniższa tabela prezentuje średni stosunek wielkości plików .png z redukcją głębi kolorów narzędziami systemowymi (i doborem kolorów za pomocą algorytmu k-means) do odpowiadających im przekształceniami plików .png bez redukcji:
+\begin{figure}[H]
+	\input{tables/red_vs_png}
+\end{figure}
+
+Wnioski: \ref{f:red_vs_png}
+
+\subsubsection{Porównanie rozmiaru doboru kolorów algorytmem k-means i systemowym w zdjęciach zdjęć w formacie .png z redukcją głębi kolorów}
+
+\label{m:red_vs_red}
+
+Poniższa tabela prezentuje średni stosunek wielkości plików .png, gdzie uprzednio zastosowano redukcję kolorów algorytmem k-means do plików .png z redukcją głębi kolorów narzędziami systemowymi:
+
+\begin{figure}[H]
+	\input{tables/red_vs_red}
+\end{figure}
+
+Wnioski: \ref{f:red_vs_red}
+
+\subsubsection{Porównanie obrazów w formacie .png ze zredukowaną głębią kolorów z oryginalnym zdjęciem w formacie .jpg}
+
+\label{m:red_vs_jpg}
+
+Poniższa tabela prezentuje średni stosunek wielkości plików .png, gdzie uprzednio zredukowano głębię kolorów narzędziami systemowymi (uprzednio redukując kolory algorytmem k-means tam, gdzie $num\_iterations > 0)$ do oryginalnego zdjęcia zapisanego w formacie .jpg:
+
+\begin{figure}[H]
+	\input{tables/red_vs_jpg}
+\end{figure}
+
+Wnioski: \ref{f:red_vs_jpg}
+
+\section{Wnioski}
+
+\subsection{Interpretacja pomiarów}
+
+\subsubsection{Porównanie formatów .jpg z redukcją kolorów algorytmem k-means i z zachowaniem oryginalnych kolorów}
+
+\label{f:jpg_vs_jpg}
+
+\begin{figure}[H]
+	\includegraphics[width=0.9\textwidth]{photos/plots/jpg_vs_jpg}
+    \caption{Wykres jakości wyników z tabeli \ref{m:jpg_vs_jpg}}
+\end{figure}
+
+Wprawdzie przy redukcji kolorów zdjęcia do jednego lub dwóch, daje to realną poprawę w porównaniu z rozmiarem oryginalnego zdjęcia. Widać jednak, że już przy czterech kolorach przestaje to powodować dużą różnicę w rozmiarze tak kompresowanych zdjęć.
+
+\subsubsection{Porównanie formatów .jpg i .png}
+\label{f:png_vs_jpg}
+
+\begin{figure}[H]
+	\includegraphics[width=0.9\textwidth]{photos/plots/png_vs_jpg}
+    \caption{Wykres jakości wyników z tabeli \ref{m:png_vs_jpg}}
+\end{figure}
+
+Oryginalne zdjęcie zapisane w formacie .png jest ponad 8 razy większe niż to samo zdjęcie w formacie .jpg.
+Choć sama redukcja kolorów obrazu (bez sprzętowej redukcji głębi obrazu) na początku działa na korzyść formatu .png. Jednak już przy redukcji do 8 kolorów widać, że na dłuższą metę nie jest ona wystarczająca, aby format .png dawał przewagę nad .jpg. Łącząc tę wiedzę z rezultatami z \ref{f:jpg_vs_jpg} można wysnuć wniosek, że ponieważ .png ze zredukowanymi kolorami nie daje przewagi nad .jpg z tak samo zredukowanymi kolorami, to nie będzie też dawać przewagi nad oryginalnym zdjęciem w formacie .jpg
+
+\subsubsection{Porównanie formatu .png z redukcją głębi i bez}
+\label{f:red_vs_png}
+
+\begin{figure}[H]
+	\includegraphics[width=0.9\textwidth]{photos/plots/red_vs_png}
+    \caption{Wykres jakości wyników z tabeli \ref{m:red_vs_png}}
+\end{figure}
+
+Tutaj widać jednoznacznie, że użycie narzędzia systemowwego do redukcji głębi kolorów plików .png ze zdjęciami skutecznie obniża ich rozmiar ponad dwukrotnie. Co więcej, ponieważ oba zdjęcia mają uprzednio zredukowane kolory (za pomocą algorytmu k-means), redukcja głębi kolorów nie powoduje dalszych strat w jakości.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{photos/kmeans_16_32}
+    \caption{Zdjęcie zredukowane do 16 kolorów przed redukcją głębi kolorów pliku (91294 B)}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{photos/kmeans_red_16_32}
+    \caption{Zdjęcie zredukowane do 16 kolorów po redukcji głębi kolorów pliku (42138 B)}
+  \end{minipage}
+\end{figure}
+
+
+\subsubsection{Porównanie rozmiaru doboru kolorów algorytmem k-means i systemowym w zdjęciach zdjęć w formacie .png z redukcją głębi kolorów}
+
+\label{f:red_vs_red}
+
+\begin{figure}[H]
+	\includegraphics[width=0.9\textwidth]{photos/plots/red_vs_red}
+    \caption{Wykres jakości wyników z tabeli \ref{m:red_vs_red}}
+\end{figure}
+
+Pierwsza kolumna ($num\_iterations = 0$) to rzecz jasna same wartości $1.0$, gdyż widać w niej porównanie średnich rozmiarów plików uzyskanych poprzez samą tylko systemową redukcję głębi kolorów (bez uprzedniej redukcji kolorów za pomocą k-means) z samymi sobą.
+
+Dalsze kolumny przedstawiają ciekawsze wyniki, z których można wywnioskować, że dobór kolorów algorytmem k-means daje mniejszy lub porównywalny rozmiar zdjęć niż dobór kolorów poprzez narzędzie systemowe.
+
+Co więcej, krótkie badania preferencyjne przeprowadzone na kilku osobach wykazały, że dobór kolorów uzyskiwany za pomocą k-means najczęściej milszy oku i bardziej przypominający oryginał.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[b]{0.25\textwidth}
+    \includegraphics[width=\textwidth]{photos/original}
+    \caption{Zdjęcie oryginalne (282801 B)\\\\\\\\}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.25\textwidth}
+    \includegraphics[width=\textwidth]{photos/kmeans_red_32_16}
+    \caption{Zdjęcie zredukowane do 32 kolorów przez 16 iteracji k-means po redukcji głębi kolorów pliku (45795 B)}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.25\textwidth}
+    \includegraphics[width=\textwidth]{photos/kmeans_red_32_0}
+    \caption{Zdjęcie zredukowane do 32 kolorów wyłącznie poprzez redukcję głębi kolorów pliku (47415 B)}
+  \end{minipage}
+\end{figure}
+
+
+\subsubsection{Porównanie obrazów w formacie .png ze zredukowaną głębią kolorów z oryginalnym zdjęciem w formacie .jpg}
+
+\label{f:red_vs_jpg}
+
+\begin{figure}[H]
+	\includegraphics[width=0.9\textwidth]{photos/plots/red_vs_jpg}
+    \caption{Wykres jakości wyników z tabeli \ref{m:red_vs_jpg}}
+\end{figure}
+
+Widać, że w większości przypadków skompresowane poprzez redukcję głębi obrazy .png mają mniejszy rozmiar niż oryginalny obraz zapisany jako .jpg. Niemniej jednak im lepsza jakość skompresowanego obrazu (więcej kolorów, więcej iteracji), tym bardziej porównanie wychodzi na korzyść oryginalnego .jpg.
+
+\subsection{Wnioski dodatkowe}
+
+Podczas pomiaróœ poczyniliśmy dodatkowe obserwacje:
+\begin{enumerate}
+\item Algorytm k-means (a przynajmniej nasza jego implementacja) działa dość powoli testowany na laptopie. Jego implementacja np. z biblioteki OpenCV będzie zapewne szybsza.
+\item Narzędzie systemowe, choć daje nieco większe i nieco gorsze wizualnie obrazy, działa znacznie szybciej od naszej implementacji k-means.
+\end{enumerate}
+
+\section{Podsumowanie}
+
+Podczas naszych badań udało nam się zaimplementować algorytm k-means, który z sukcesem redukuje liczbę kolorów w obrazie. Redukcja kolorów ma pozytywny wpływ na rozmiar obrazu, gdy zapisaujemy go w formacie .png - tego wpływu nie obserwujemy na dłuższą metę gdy zapisujemy obraz w formacie .jpg.
+
+Sprawia to, że sama redukcja kolorów nie przynosi pożądanych skutków - format .jpg osiąga lepsze wyniki od .png rozszerzonego o redukcję.
+
+Użytek ww. narzędzia systemowego, które fizycznie zmniejsza głębię kolorów w plikach .png znacznie poprawia wyniki kompresji. Przy odpowiednio niskiej liczbie kolorów, tak skompresowane pliki .png osiągają mniejsze rozmiary niż oryginalny .jpg oraz pliki .jpg skompresowane analogicznie.
+
+Co więcej, zauważamy że selekcja odpowiednich kolorów za pomocą algorytmu k-means (zamiast kazać to robić narzędziu systemowemu) dodatkowo poprawia działanie narzędzia. Wynikowe obrazy są lepsze wizualnie przy mniejszym lub porównywalnym rozmiarze, co wyniki użycia samego tylko narzędzia.
+
+Ostatecznie jednak udaje się nam uzyskać niższy rozmiar niż pliki .jpg tylko przy niskich liczbach kolorów (wyniki przestają być zadowalające przy 16), do których redukujemy obrazy. Należy sobie zadać pytanie, jaka jest dolna granica liczby kolorów do której redukujemy, przy której obraz wciąż będzie zadowalający wizualnie i nadający się do badania.
+
+Choć nie badaliśmy tego formalnie, to zauważyliśmy że nasza implementacja k-means działa względnie powoli (rząd wielkości sekund), badana na laptopie z procesorem Intel Core i7. Można się tylko spodziewać, że działając na Raspberry Pi 1, czas takiej kompresji obrazów będzie o rzędzy wielkości dłuższy niż zaobserwowany dotychczas.
+
+Rodzi to podejrzenie, czy używając k-means w celu zredukowania zużytej pamięci dyskowej faktycznie zdążymy w praktyce tę pamięć zapełnić. To podejrzenie w połączeniu z powyższymi obserwacjami skłania nas do wybrania w trakcie eksperymentu zapisu w formacie .jpg. Pomimo, że redukcja kolorów ma dobry wpływ na rozmiar obrazu, to w naszym konkretnym przypadku nie znajdujemy dla niej dużego zastosowania.

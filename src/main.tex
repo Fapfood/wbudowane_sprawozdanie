@@ -15,6 +15,7 @@
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{listings}
 
 \title{Systemy Wbudowane - AstroPi Challenge}
 \author{Marcin Przewięźlikowski, Maciej Trzebiński}
@@ -58,7 +59,10 @@
     \chapter{Porównanie wydajności Raspberry Pi 3, Raspberry Pi 1 oraz komputera klasy PC}\label{ch:performance}
     \input{performance}
 
-    \chapter{Kompresja zdjęć}\label{ch:compression}
+    \chapter{Kompresja zdjęć metodą redukcji kolorów}
+    \input{compression}
+
+    \chapter{Kompresja zdjęć metodą SVD}\label{ch:compression}
     \input{svd}
 
     \chapter{Geolokalizacja}\label{ch:geolocalisation}
