@@ -14,7 +14,7 @@ wydajnościowo możliwa.
 ESA udostępniła zbiór zdjęć wykonanych przez Raspberry w poprzedniej edycji eksperymentu, jednak
 wśród nich nie znajdowały się zdjęcia wykonane po ciemnej stronie globu. Było to kolejne przeciwskazanie
 do pierwotnego pomysłu, ponieważ musielibysmy spreparować dane testowe wykorzystując zdjecia znalezione
-w internecie i wykonane przez inne urządzenia.
+w Internecie i wykonane przez inne urządzenia.
 
 Nie mieliśmy wpływu na drugi problem, ale mogliśmy sprawdzić jak poważnym przeciwskazaniem jest pierwszy.
 Postanowiliśmy zbadać wydajność modelu RaspberryPi 1 B+ i porównać ją z wydajnością modelu Raspberry 3 B oraz
@@ -199,7 +199,7 @@ jednak problem, ponieważ nie liczyła się dla nas poprawność rozpoznania, a 
     tej samej konfiguracji pozostałego sprzętu, jak również dokładnie tym samym egzemplarzem systemu, na
     Raspberry Pi 3 trwało to 0,5s) \normalsize \\
     \item niewydolność pozostałych interfejsów wejścia/wyjścia
-    \footnotesize (w trakcie robienia zdjęcia kamerką, obraz
+    \footnotesize (w trakcie robienia zdjęcia przy pomocy modułu kamery, obraz
     na ekranie podpiętym pod HDMI stawał się czarny i wracał dopiero gdy zdjęcie zostało zapisane przez
     program) \normalsize \\
 \end{itemize}
@@ -207,14 +207,17 @@ jednak problem, ponieważ nie liczyła się dla nas poprawność rozpoznania, a 
 \section{Wnioski}\label{sec:performance_conclusion}
 
 Najprawdopodobniej wykonanie zdjęcia na Raspberry Pi 1 było tak mało wydajne z powodu
-niewydolności interfejsów, co tłumaczy 50x wolniejsze działanie w porównaniu z Raspberry Pi 3.
+niewydolności interfejsów i mniejszej mocy obliczeniowej tego modelu.
+Nie bez znaczenia jest też fakt, że model 1 posiada procesor jednordzeniowy, zaś model 3 - czterordzeniowy.
+To wszystko tłumaczy 50x wolniejsze działanie w porównaniu z Raspberry Pi 3.
 
 Analiza zdjęcia na wszystkich 3 obiektach testowych była najbardziej stała czasowo, a jako
 że to był główny cel naszego eksperymentu, to te wyniki są dla nas najważniejsze. Raspberry Pi 1
 jest średnio 5,5x wolniejsze na samej analizie zdjęcia, które w tym przypadku było wykonywane
-metodą prostej regresji. W przypadku bardziej skomplikowanych modeli machine learningu
+metodą prostej regresji liniowej.
+W przypadku bardziej złożonych obliczeniowo modeli uczenia maszynowego można spodziewać się, że
 rozbieżności czasowe będą dużo bardziej widoczne, dlatego musimy zrezygnować z analizy zdjęć
-na stacji kosmicznej przez niewydolność sprzętu.
+na stacji kosmicznej przez niską moc obliczeniową sprzętu.
 
 Analizy zdjęć dokonamy na komputerze PC, już po wykonaniu części eksperymentu mającej
 miejsce na pokładzie ISS.

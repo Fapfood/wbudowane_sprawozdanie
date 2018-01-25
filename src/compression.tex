@@ -23,7 +23,7 @@ K-means można zaaplikować do obrazów następująco:
 
 \begin{enumerate}
 \item Za pomocą algorytmu znaleźć $k$ kolorów najbardziej "reprezentatywnych" dla obrazu
-\item Każdy piksel w obrazie zmapować na kolor reprezentatywny najbliższy do koloru tegoż piksela
+\item Każdy piksel w obrazie odwzorować na kolor reprezentatywny najbliższy do koloru tegoż piksela
 \item Obraz z ograniczoną do $k$ liczbą kolorów potrzebuje mniej bitów, by dany kolor zakodować, dzięki czemu może zajmować mniej pamięci.
 \end{enumerate}
 
@@ -158,7 +158,7 @@ Wprawdzie przy redukcji kolorów zdjęcia do jednego lub dwóch, daje to realną
 \end{figure}
 
 Oryginalne zdjęcie zapisane w formacie .png jest ponad 8 razy większe niż to samo zdjęcie w formacie .jpg.
-Choć sama redukcja kolorów obrazu (bez sprzętowej redukcji głębi obrazu) na początku działa na korzyść formatu .png. Jednak już przy redukcji do 8 kolorów widać, że na dłuższą metę nie jest ona wystarczająca, aby format .png dawał przewagę nad .jpg. Łącząc tę wiedzę z rezultatami z \ref{f:jpg_vs_jpg} można wysnuć wniosek, że ponieważ .png ze zredukowanymi kolorami nie daje przewagi nad .jpg z tak samo zredukowanymi kolorami, to nie będzie też dawać przewagi nad oryginalnym zdjęciem w formacie .jpg
+Sama redukcja kolorów obrazu (bez sprzętowej redukcji głębi obrazu) na początku działa na korzyść formatu .png. Jednak już przy redukcji do 8 kolorów widać, że na dłuższą metę nie jest ona wystarczająca, aby format .png dawał przewagę nad .jpg. Łącząc tę wiedzę z rezultatami z \ref{f:jpg_vs_jpg} można wysnuć wniosek, że ponieważ .png ze zredukowanymi kolorami nie daje przewagi nad .jpg z tak samo zredukowanymi kolorami, to nie będzie też dawać przewagi nad oryginalnym zdjęciem w formacie .jpg
 
 \subsubsection{Porównanie formatu .png z redukcją głębi i bez}
 \label{f:red_vs_png}
@@ -231,7 +231,7 @@ Widać, że w większości przypadków skompresowane poprzez redukcję głębi o
 
 \subsection{Wnioski dodatkowe}
 
-Podczas pomiaróœ poczyniliśmy dodatkowe obserwacje:
+Podczas pomiarów poczyniliśmy dodatkowe obserwacje:
 \begin{enumerate}
 \item Algorytm k-means (a przynajmniej nasza jego implementacja) działa dość powoli testowany na laptopie. Jego implementacja np. z biblioteki OpenCV będzie zapewne szybsza.
 \item Narzędzie systemowe, choć daje nieco większe i nieco gorsze wizualnie obrazy, działa znacznie szybciej od naszej implementacji k-means.
